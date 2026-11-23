@@ -4,7 +4,7 @@
 RentGear is a full-stack equipment rental marketplace connecting verified equipment owners with customers for construction, photography, agriculture, vehicles, electronics, and event gear rentals.
 
 ## Live URL
-- **Live Site:** [Add Your Vercel Live URL Here]
+- **Live Site:** [ https://rentgear-client.vercel.app ]
 
 ## Key Features
 - **Authentication & RBAC:** BetterAuth (Email/Password + Google OAuth) with JWT verification and role-based middleware (`Customer`, `Owner`, `Admin`).
