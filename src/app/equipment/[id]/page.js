@@ -32,16 +32,25 @@ export default function EquipmentDetailsPage() {
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    if (id && user) {
-      api
-        .get(`/api/equipment/${id}`)
-        .then((res) => setItem(res.data))
-        .catch(() => toast.error("Failed to load equipment"))
-        .finally(() => setLoading(false));
-    }
+    if (!id || !user) return;
+    api
+      .get(`/api/equipment/${id}`)
+      .then((res) => {
+        if (res.data && res.data._id) {
+          setItem(res.data);
+        } else {
+          setItem(null);
+        }
+      })
+      .catch(() => {
+        setItem(null);
+        toast.error("Failed to load equipment");
+      })
+      .finally(() => setLoading(false));
   }, [id, user]);
 
   const handleAddFavorite = async () => {
+    if (!item?._id) return;
     try {
       await api.post("/api/favorites", {
         equipmentId: item._id,
@@ -67,6 +76,7 @@ export default function EquipmentDetailsPage() {
 
   const handleBooking = async (e) => {
     e.preventDefault();
+    if (!item?._id) return;
     if (Number(form.quantity) > item.availableQuantity) {
       toast.error(`Only ${item.availableQuantity} units available.`);
       return;
@@ -81,7 +91,7 @@ export default function EquipmentDetailsPage() {
         ...form,
         totalAmount,
       });
-      if (res.data.url) {
+      if (res.data?.url) {
         window.location.href = res.data.url;
       }
     } catch (err) {
@@ -90,18 +100,27 @@ export default function EquipmentDetailsPage() {
     }
   };
 
-  if (authLoading || loading)
+  if (authLoading || loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center text-slate-400">
         Loading details...
       </div>
     );
-  if (!item)
+  }
+
+  if (!item || !item._id) {
     return (
-      <div className="text-center py-20 text-slate-400">
-        Equipment not found.
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-slate-400 space-y-4">
+        <p>Equipment not found or failed to load.</p>
+        <button
+          onClick={() => router.push("/equipment")}
+          className="px-5 py-2.5 bg-amber-500 text-slate-950 font-semibold rounded-lg hover:bg-amber-400 transition"
+        >
+          Back to All Equipment
+        </button>
       </div>
     );
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
